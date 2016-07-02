@@ -1,0 +1,26 @@
+//- index.jade
+extends ./base.jade
+
+block navlist
+  li.active
+    a(href='/') All Books
+  if user
+    li
+      a(href='/create') New Book
+    li
+      a(href='/my') My Books
+    li
+      a(href='/trade') My Trade
+
+block container
+  style.
+    form button {
+      margin-right: 20px;
+    }
+  .row
+    .col-md-8.col-md-offset-2
+      form(action="/profile" method="post")
+        .form-group
+          label(for='exampleInputEmail1') Book Receive Address
+          input#exampleInputEmail1.form-control(type='text', placeholder='address', name="address", value=user.address)
+        button.btn.btn-default(type='submit') Save

@@ -11,6 +11,17 @@ body {
 /*   display: inline-block;
   vertical-align: top; */
 }
+.card.selective {
+  cursor: pointer;
+}
+
+.card.selective.select1 {
+  border: blue solid 3px;
+}
+
+.card.selective:hover {
+  border: red solid 3px;
+}
 
 .card img {
   width: 100%;
@@ -22,9 +33,44 @@ body {
   text-align: center;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
-
+.card .requestlabel {
+  position: absolute;
+    bottom: 4px;
+    left: 4px;
+}
 .card .deletelabel {
   position: absolute;
     bottom: 4px;
     right: 4px;
+}
+.fast-animation {
+    -webkit-animation-duration: 0.5s;
+    animation-duration: 0.5s;
+}
+
+.trade {
+  background-color: #DDD;
+  padding: 15px;
+  border-radius: 5px;
+  display: relative;
+  height: 200px;
+
+}
+
+.trade .book{
+  display: inline-block;
+  background-color: #CCC;
+  padding: 10px;
+  height: 100%;
+  border-radius: 5px;
+ margin-right: 20px;
+}
+.trade img {
+  height: 100px;
+}
+
+.trade button {
+  position: absolute;
+  right: 30px;
+  top: 80px;
 }

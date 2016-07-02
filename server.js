@@ -14,7 +14,8 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
 var UserClass = require("./models/user.js");
-var ImageClass = require("./models/image.js");
+var BookClass = require("./models/book.js");
+var TradeClass = require("./models/trade.js");
 
 var router = express();
 var server = http.createServer(router);
@@ -25,7 +26,8 @@ router.set('view engine', 'jade');
 router.set('views', process.cwd() + '/client');
 
 var User = new UserClass();
-var ImageStore = new ImageClass();
+var BookStore = new BookClass();
+var TradeStore = new TradeClass();
 
 passport.use(new LocalStrategy(
   function(username, password, done) {
@@ -87,21 +89,23 @@ router.use(passport.initialize());
 router.use(passport.session());
 
 
-var urls = ['http://img4.imgtn.bdimg.com/it/u=3730363120,438618708&fm=21&gp=0.jpg',
-'http://img1.imgtn.bdimg.com/it/u=3495037814,4039729047&fm=21&gp=0.jpg',
-'http://img1.imgtn.bdimg.com/it/u=1133494587,246370114&fm=21&gp=0.jpg',
-'http://img1.imgtn.bdimg.com/it/u=2908942533,263269990&fm=21&gp=0.jpg',
-'http://img1.imgtn.bdimg.com/it/u=3495037814,4039729047&fm=21&gp=0.jpg'];
-// initial image
+var urls = ['https://img3.doubanio.com/lpic/s28748605.jpg',
+'https://img3.doubanio.com/lpic/s28719862.jpg',
+'https://img3.doubanio.com/lpic/s28805134.jpg',
+'https://img3.doubanio.com/lpic/s28851745.jpg',
+'https://img3.doubanio.com/lpic/s28737406.jpg'];
+
+var titles = ['纸上染了蓝','镜（全6册）','你的坚持，终将美好','遗失在西方的中国史','不再独自旅行'];
+// initial Book
 for(var i=0; i<urls.length; i++) {
-  ImageStore.create('Image '+i, urls[i], 'admin');
+  BookStore.create(titles[i], urls[i], 'admin');
 }
 
 router.get('/', function(req, res) {
-  var images = ImageStore.getAll();
+  var books = BookStore.getAll();
   res.render('index', {
     user: req.user,
-    images: images
+    books: books
   });
 });
 
@@ -156,6 +160,84 @@ router.get('/logout',
     res.redirect('/');
   });
   
+router.get('/newtrade', require('connect-ensure-login').ensureLoggedIn(), function(req, res) {
+  var sendbookid = req.query.sendbookid || 0;
+  var receivebookid = req.query.receivebookid || 0;
+  var books = BookStore.getAll();
+  var mybooks = [];
+  var theirbooks = [];
+  for(var i=0; i<books.length; i++) {
+    if(books[i].author === req.user.username) {
+      mybooks.push(books[i]);
+    }
+    else{
+      theirbooks.push(books[i]);
+    }
+  }
+  var data = {
+    user: req.user,
+    sendbookid: sendbookid,
+    receivebookid: receivebookid,
+    mybooks: mybooks,
+    theirbooks: theirbooks
+  };
+  res.render('newtrade', data);
+});
+
+router.post('/newtrade', require('connect-ensure-login').ensureLoggedIn(), function(req, res) {
+  var sendbookid = req.body.sendbookid;
+  var receivebookid = req.body.receivebookid;
+  var sendbook = BookStore.getById(sendbookid);
+  var receivebook = BookStore.getById(receivebookid);
+  TradeStore.create(sendbook, receivebook, 'my');
+  res.send({status:1});
+});
+
+router.get('/trade', require('connect-ensure-login').ensureLoggedIn(), function(req, res) {
+  var tradeToMe = TradeStore.getTradeToMe(req.user.username);
+  var tradeFromMe = TradeStore.getTradeFromMe(req.user.username);
+  var data = {
+    user: req.user,
+    tradeToMe: tradeToMe,
+    tradeFromMe: tradeFromMe
+  };
+  res.render('trade', data);
+});
+
+router.post('/trade', require('connect-ensure-login').ensureLoggedIn(), function(req, res) {
+  var action = req.body.action;
+  var tradeid = req.body.tradeid;
+  var author = req.user.username;
+  
+  if (action === 'accept') {
+    TradeStore.accept(tradeid, author);
+    var trade = TradeStore.getById(tradeid);
+    BookStore.getById(trade.sendbook.id).finished = 1;
+    BookStore.getById(trade.receivebook.id).finished = 1;
+  }
+  else if (action === 'delete') {
+    TradeStore.delete(tradeid, author);
+  }
+  res.send({status:1});
+});
+
+
+router.get('/profile', require('connect-ensure-login').ensureLoggedIn(), function(req, res) {
+  res.render('profile', {
+    user: req.user
+  });
+});
+
+router.post('/profile', require('connect-ensure-login').ensureLoggedIn(), function(req, res) {
+  var address = req.body.address;
+  var username = req.user.username;
+  var user = User.findOne(username, function(err, user){
+    user.address= address;
+    req.user.address = address;
+    res.redirect('/');
+  });
+});
+  
 router.get('/create', require('connect-ensure-login').ensureLoggedIn(), function(req, res) {
   res.render('create', {
     user: req.user
@@ -165,25 +247,25 @@ router.get('/create', require('connect-ensure-login').ensureLoggedIn(), function
 router.post('/create', require('connect-ensure-login').ensureLoggedIn(), function(req, res) {
   var title = req.body.title, url = req.body.url;
   var author = req.user.username;
-  ImageStore.create(title, url, author);
+  BookStore.create(title, url, author);
   res.redirect('/');
 });
 
 router.get('/my', require('connect-ensure-login').ensureLoggedIn(), function(req, res) {
   var author = req.user.username;
-  var images = ImageStore.getAll(author);
+  var books = BookStore.getAll(author);
   res.render('my', {
     user: req.user,
-    images: images
+    books: books
   });
 });
 
 router.post('/my', require('connect-ensure-login').ensureLoggedIn(), function(req, res) {
   var action = req.body.action;
-  var imageid = req.body.imageid;
+  var bookid = req.body.bookid;
   var author = req.user.username;
   if (action == 'delete'){
-    ImageStore.delete(imageid, author);
+    BookStore.delete(bookid, author);
   }
   res.redirect('/my');
 });

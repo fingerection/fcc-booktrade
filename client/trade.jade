@@ -1,0 +1,62 @@
+//- index.jade
+extends ./base.jade
+
+block navlist
+  li
+    a(href='/') All Books
+  if user
+    li
+      a(href='/create') New Book
+    li
+      a(href='/my') My Books
+    li.active
+      a(href='/trade') My Trade
+
+block header
+  link(rel='stylesheet', href='/css/animate.min.css')
+  link(rel='stylesheet', href='/css/main.css')
+
+block container
+  h1.text-center trade to me
+  each trade in tradeToMe
+    .row
+      .col-md-8.col-md-offset-2
+        .trade
+          .book
+            p My Book To Send
+            img(src=trade.sendbook.url) 
+            p.title=trade.sendbook.title
+            
+          .book
+            p Book To Receive 
+            img(src=trade.receivebook.url)
+            p.title=trade.receivebook.title
+          if (trade.finished == 1)
+            button.btn.btn-success(type="button", data-id=trade.id) Success
+          else
+            button.acceptBtn.btn.btn-primary(type="button", data-id=trade.id) Accept
+          
+  h1.text-center trade from me
+  each trade in tradeFromMe
+    .row
+      .col-md-8.col-md-offset-2
+        .trade
+          .book
+            p My Book To Send
+            img(src=trade.sendbook.url) 
+            p.title=trade.sendbook.title
+            
+          .book
+            p Book To Receive 
+            img(src=trade.receivebook.url)
+            p.title=trade.receivebook.title
+          if (trade.finished == 1)
+            button.btn.btn-success(type="button", data-id=trade.id) Success
+          else
+            button.deleteBtn.btn.btn-primary(type="button", data-id=trade.id) Delete
+
+block footer
+  script(src='https://npmcdn.com/masonry-layout@4.0/dist/masonry.pkgd.js')
+  script(src='https://npmcdn.com/imagesloaded@4.1/imagesloaded.pkgd.min.js')
+  script(src='/js/common.js')
+  script(src='/js/trade.js')

@@ -1,3 +1,3 @@
-# fcc-pinterest
+# fcc-booktrade
 
-https://www.freecodecamp.com/challenges/build-a-pinterest-clone
+https://www.freecodecamp.com/challenges/manage-a-book-trading-club

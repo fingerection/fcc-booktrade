@@ -2,6 +2,7 @@
 var authUserClass = function(username, password) {
   this.username = username;
   this.password = password;
+  this.address = '';
 };
 authUserClass.prototype.validPassword = function(password) {
   console.log(password, this.password)
@@ -16,9 +17,9 @@ var UserClass = function() {
   this.users = {};
 };
 UserClass.prototype.findOne = function(username, cb) {
-  var password = this.users[username];
-  if (password !== undefined) {
-    var returnUser = new authUserClass(username, password);
+  var user = this.users[username];
+  if (user !== undefined) {
+    var returnUser = user;
   }
   else {
     var returnUser = null;
@@ -26,7 +27,7 @@ UserClass.prototype.findOne = function(username, cb) {
   cb(null, returnUser);
 };
 UserClass.prototype.create = function(username, password) {
-  this.users[username] = password;
+  this.users[username] = new authUserClass(username, password);;
 }
 UserClass.prototype.isExist = function(username) {
   console.log(this.users[username]);

@@ -1,0 +1,71 @@
+//- index.jade
+extends ./base.jade
+
+block navlist
+  li.active
+    a(href='/') All Books
+  if user
+    li
+      a(href='/create') New Book
+    li
+      a(href='/my') My Books
+    li
+      a(href='/trade') My Trade
+
+block header
+  link(rel='stylesheet', href='/css/animate.min.css')
+  link(rel='stylesheet', href='/css/main.css')
+
+block container
+  .row
+    .col-md-8.col-md-offset-2
+      #card0
+        h1 Choose A Book to Receive
+        if (theirbooks.length == 0)
+          p
+            | No books for you to send. Please click 
+            | <a href="/create">New Book</a>
+            | to create one.
+        .row
+          .grid1(data-masonry='{ "itemSelector": ".card", "columnWidth": 190 }')
+            each book in theirbooks
+              if (book.id == receivebookid)
+                .card.selective.select1.theirselect(id='theirbid'+book.id)
+                  img(src=book.url)
+                  p= book.title
+              else
+                .card.selective.select0.theirselect(id='theirbid'+book.id)
+                  img(src=book.url)
+                  p= book.title
+        .challenge-button-block
+          .col-sm-4.hidden-xs  
+          .challenge-step-counter.large-p.col-sm-4.col-xs-12.text-center (1 / 2)
+          #btn0.btn.btn-primary.col-sm-4.col-xs-12.challenge-step-btn-next.btn-lg Next
+      #card1.hidden
+        h1 Choose A Book to Send
+        if (mybooks.length == 0)
+          p
+            | No books for you to send. Please click 
+            | <a href="/create">New Book</a>
+            | to create one.
+        .row
+          .grid2(data-masonry='{ "itemSelector": ".card", "columnWidth": 190 }')
+            each book in mybooks
+              if (book.id == receivebookid)
+                .card.selective.select1.myselect(id='mybid'+book.id)
+                  img(src=book.url)
+                  p= book.title
+              else
+                .card.selective.select0.myselect(id='mybid'+book.id)
+                  img(src=book.url)
+                  p= book.title
+        .challenge-button-block
+          #btn1.btn.btn-primary.btn-primary-ghost.col-sm-4.col-xs-12.challenge-step-btn-prev.btn-lg Back
+          .challenge-step-counter.large-p.col-sm-4.col-xs-12.text-center (2 / 2)
+          #btn2.btn.btn-primary.col-sm-4.col-xs-12.challenge-step-btn-next.btn-lg Create Trade
+
+block footer
+  script(src='https://npmcdn.com/masonry-layout@4.0/dist/masonry.pkgd.js')
+  script(src='https://npmcdn.com/imagesloaded@4.1/imagesloaded.pkgd.min.js')
+  script(src='/js/common.js')
+  script(src='/js/newtrade.js')

@@ -3,23 +3,28 @@ extends ./base.jade
 
 block navlist
   li.active
-    a(href='/') Home
+    a(href='/') All Books
   if user
     li
-      a(href='/create') New Image
+      a(href='/create') New Book
     li
-      a(href='/my') My Images
+      a(href='/my') My Books
+    li
+      a(href='/trade') My Trade
 
 block header
   link(rel='stylesheet', href='/css/main.css')
 
 block container
     .grid(data-masonry='{ "itemSelector": ".card", "columnWidth": 190 }')
-      each image in images
+      each book in books
         .card
-          img(src=image.url)
-          p= image.title
+          img(src=book.url)
+          a.requestlabel(data-id=book.id)
+            i.remove.glyphicon.glyphicon-retweet.glyphicon-white
+          p= book.title
     
 block footer
   script(src='https://npmcdn.com/masonry-layout@4.0/dist/masonry.pkgd.js')
+  script(src='/js/common.js')
   script(src='/js/index.js')
